@@ -1,0 +1,51 @@
+#!/usr/bin/env node
+
+require('dotenv').config();
+console.log('[bin/www] Starting Nidan Pathology server');
+
+const app = require('../app');
+const http = require('http');
+
+const port = normalizePort(process.env.PORT || '3000');
+app.set('port', port);
+console.log('[bin/www] Port set to:', port);
+
+const server = http.createServer(app);
+console.log('[bin/www] HTTP server instance created');
+
+server.listen(port);
+server.on('error', onError);
+server.on('listening', onListening);
+console.log('[bin/www] Listeners attached');
+
+function normalizePort(val) {
+  console.log('[bin/www.normalizePort] raw:', val);
+  const parsed = parseInt(val, 10);
+  if (Number.isNaN(parsed)) return val;
+  if (parsed >= 0) return parsed;
+  return false;
+}
+
+function onError(error) {
+  console.log('[bin/www.onError] code:', error.code);
+  if (error.syscall !== 'listen') throw error;
+  const bind = typeof port === 'string' ? `Pipe ${port}` : `Port ${port}`;
+  switch (error.code) {
+    case 'EACCES':
+      console.error(`${bind} requires elevated privileges`);
+      process.exit(1);
+      break;
+    case 'EADDRINUSE':
+      console.error(`${bind} is already in use`);
+      process.exit(1);
+      break;
+    default:
+      throw error;
+  }
+}
+
+function onListening() {
+  const addr = server.address();
+  const bind = typeof addr === 'string' ? `pipe ${addr}` : `port ${addr.port}`;
+  console.log('[bin/www.onListening] Server listening on', bind);
+}

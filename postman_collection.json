@@ -1,0 +1,520 @@
+{
+  "info": {
+    "name": "Nidan Pathology BE",
+    "_postman_id": "a1f1e1c0-0001-4000-8000-000000000001",
+    "description": "Admin + Doctor panel API for Nidan Pathology Lab backend (Node/Express/Postgres).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "BASE_URL", "value": "http://localhost:3000", "type": "string" },
+    { "key": "ADMIN_TOKEN", "value": "", "type": "string" },
+    { "key": "DOCTOR_TOKEN", "value": "", "type": "string" },
+    { "key": "DOCTOR_ID", "value": "", "type": "string" },
+    { "key": "REPORT_ID", "value": "", "type": "string" }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "Root",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{BASE_URL}}/", "host": ["{{BASE_URL}}"], "path": [""] }
+          }
+        },
+        {
+          "name": "Health",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{BASE_URL}}/api/health", "host": ["{{BASE_URL}}"], "path": ["api", "health"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Admin Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "try {",
+                  "  const res = pm.response.json();",
+                  "  const token = res.data && (res.data.token || (res.data.tokens && res.data.tokens.access)) || res.token;",
+                  "  if (token) pm.collectionVariables.set('ADMIN_TOKEN', token);",
+                  "} catch (e) { console.log('no token in response'); }"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@nidan.com\",\n  \"password\": \"admin123\"\n}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/api/auth/admin/login",
+              "host": ["{{BASE_URL}}"],
+              "path": ["api", "auth", "admin", "login"]
+            }
+          }
+        },
+        {
+          "name": "Doctor Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "try {",
+                  "  const res = pm.response.json();",
+                  "  const token = res.data && (res.data.token || (res.data.tokens && res.data.tokens.access)) || res.token;",
+                  "  if (token) pm.collectionVariables.set('DOCTOR_TOKEN', token);",
+                  "} catch (e) { console.log('no token in response'); }"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"login_id\": \"dr_sharma\",\n  \"password\": \"doctor123\"\n}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/api/auth/doctor/login",
+              "host": ["{{BASE_URL}}"],
+              "path": ["api", "auth", "doctor", "login"]
+            }
+          }
+        },
+        {
+          "name": "Admin Change Password",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{ADMIN_TOKEN}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"old_password\": \"admin123\",\n  \"new_password\": \"newadmin123\"\n}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/api/auth/admin/change-password",
+              "host": ["{{BASE_URL}}"],
+              "path": ["api", "auth", "admin", "change-password"]
+            }
+          }
+        },
+        {
+          "name": "Doctor Change Password",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{DOCTOR_TOKEN}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"old_password\": \"doctor123\",\n  \"new_password\": \"newdoctor123\"\n}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/api/auth/doctor/change-password",
+              "host": ["{{BASE_URL}}"],
+              "path": ["api", "auth", "doctor", "change-password"]
+            }
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{ADMIN_TOKEN}}" }],
+            "url": {
+              "raw": "{{BASE_URL}}/api/auth/logout",
+              "host": ["{{BASE_URL}}"],
+              "path": ["api", "auth", "logout"]
+            }
+          }
+        },
+        {
+          "name": "Me",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{ADMIN_TOKEN}}" }],
+            "url": {
+              "raw": "{{BASE_URL}}/api/auth/me",
+              "host": ["{{BASE_URL}}"],
+              "path": ["api", "auth", "me"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin - Doctors",
+      "item": [
+        {
+          "name": "Create Doctor",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "try {",
+                  "  const res = pm.response.json();",
+                  "  const id = res.data && (res.data.id || (res.data.doctor && res.data.doctor.id));",
+                  "  if (id) pm.collectionVariables.set('DOCTOR_ID', id);",
+                  "} catch (e) {}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{ADMIN_TOKEN}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Dr. Ramesh Sharma\",\n  \"phone\": \"9876543210\",\n  \"email\": \"ramesh@clinic.com\",\n  \"speciality\": \"Cardiology\",\n  \"hospital\": \"City Hospital\",\n  \"address\": \"MG Road, Indore\",\n  \"status\": \"active\",\n  \"login_id\": \"dr_sharma\",\n  \"password\": \"doctor123\"\n}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/api/admin/doctors",
+              "host": ["{{BASE_URL}}"],
+              "path": ["api", "admin", "doctors"]
+            }
+          }
+        },
+        {
+          "name": "List Doctors",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{ADMIN_TOKEN}}" }],
+            "url": {
+              "raw": "{{BASE_URL}}/api/admin/doctors?q=&is_active=true&page=1&limit=20&sort_by=created_at&sort_dir=desc",
+              "host": ["{{BASE_URL}}"],
+              "path": ["api", "admin", "doctors"],
+              "query": [
+                { "key": "q", "value": "" },
+                { "key": "is_active", "value": "true" },
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "20" },
+                { "key": "sort_by", "value": "created_at" },
+                { "key": "sort_dir", "value": "desc" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Doctor by ID",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{ADMIN_TOKEN}}" }],
+            "url": {
+              "raw": "{{BASE_URL}}/api/admin/doctors/{{DOCTOR_ID}}",
+              "host": ["{{BASE_URL}}"],
+              "path": ["api", "admin", "doctors", "{{DOCTOR_ID}}"]
+            }
+          }
+        },
+        {
+          "name": "Update Doctor",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{ADMIN_TOKEN}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Dr. Ramesh Sharma\",\n  \"phone\": \"9876543211\",\n  \"email\": \"ramesh.new@clinic.com\",\n  \"speciality\": \"Cardiology\",\n  \"hospital\": \"City Hospital\",\n  \"address\": \"New MG Road, Indore\"\n}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/api/admin/doctors/{{DOCTOR_ID}}",
+              "host": ["{{BASE_URL}}"],
+              "path": ["api", "admin", "doctors", "{{DOCTOR_ID}}"]
+            }
+          }
+        },
+        {
+          "name": "Toggle Doctor Status",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{ADMIN_TOKEN}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"is_active\": false\n}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/api/admin/doctors/{{DOCTOR_ID}}/status",
+              "host": ["{{BASE_URL}}"],
+              "path": ["api", "admin", "doctors", "{{DOCTOR_ID}}", "status"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin - Reports",
+      "item": [
+        {
+          "name": "Create Report (multipart)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "try {",
+                  "  const res = pm.response.json();",
+                  "  const id = res.data && (res.data.id || (res.data.report && res.data.report.id));",
+                  "  if (id) pm.collectionVariables.set('REPORT_ID', id);",
+                  "} catch (e) {}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{ADMIN_TOKEN}}" }],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "file", "type": "file", "src": [] },
+                { "key": "report_name", "value": "CBC Report", "type": "text" },
+                { "key": "sample_date", "value": "2026-04-20", "type": "text" },
+                { "key": "reg_no", "value": "REG-1001", "type": "text" },
+                { "key": "lab_no", "value": "LAB-1001", "type": "text" },
+                { "key": "patient_name", "value": "Suresh Kumar", "type": "text" },
+                { "key": "age", "value": "45", "type": "text" },
+                { "key": "sex", "value": "male", "type": "text" },
+                { "key": "referred_by_doctor_id", "value": "{{DOCTOR_ID}}", "type": "text" },
+                { "key": "referred_by_self", "value": "false", "type": "text" },
+                { "key": "panel", "value": "Haematology", "type": "text" },
+                { "key": "investigation", "value": "Complete Blood Count", "type": "text" },
+                { "key": "status", "value": "completed", "type": "text" }
+              ]
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/api/admin/reports",
+              "host": ["{{BASE_URL}}"],
+              "path": ["api", "admin", "reports"]
+            }
+          }
+        },
+        {
+          "name": "List Reports",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{ADMIN_TOKEN}}" }],
+            "url": {
+              "raw": "{{BASE_URL}}/api/admin/reports?q=&status=completed&page=1&limit=20&sort_by=created_at&sort_dir=desc",
+              "host": ["{{BASE_URL}}"],
+              "path": ["api", "admin", "reports"],
+              "query": [
+                { "key": "q", "value": "" },
+                { "key": "status", "value": "completed" },
+                { "key": "referred_by_doctor_id", "value": "", "disabled": true },
+                { "key": "from_date", "value": "", "disabled": true },
+                { "key": "to_date", "value": "", "disabled": true },
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "20" },
+                { "key": "sort_by", "value": "created_at" },
+                { "key": "sort_dir", "value": "desc" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Report by ID",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{ADMIN_TOKEN}}" }],
+            "url": {
+              "raw": "{{BASE_URL}}/api/admin/reports/{{REPORT_ID}}",
+              "host": ["{{BASE_URL}}"],
+              "path": ["api", "admin", "reports", "{{REPORT_ID}}"]
+            }
+          }
+        },
+        {
+          "name": "Update Report (multipart)",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Authorization", "value": "Bearer {{ADMIN_TOKEN}}" }],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "file", "type": "file", "src": [] },
+                { "key": "report_name", "value": "CBC Report (Revised)", "type": "text" },
+                { "key": "status", "value": "completed", "type": "text" }
+              ]
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/api/admin/reports/{{REPORT_ID}}",
+              "host": ["{{BASE_URL}}"],
+              "path": ["api", "admin", "reports", "{{REPORT_ID}}"]
+            }
+          }
+        },
+        {
+          "name": "Update Report Status",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{ADMIN_TOKEN}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"completed\"\n}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/api/admin/reports/{{REPORT_ID}}/status",
+              "host": ["{{BASE_URL}}"],
+              "path": ["api", "admin", "reports", "{{REPORT_ID}}", "status"]
+            }
+          }
+        },
+        {
+          "name": "Download Report",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{ADMIN_TOKEN}}" }],
+            "url": {
+              "raw": "{{BASE_URL}}/api/admin/reports/{{REPORT_ID}}/download",
+              "host": ["{{BASE_URL}}"],
+              "path": ["api", "admin", "reports", "{{REPORT_ID}}", "download"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin - Referrals",
+      "item": [
+        {
+          "name": "List All Referrals",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{ADMIN_TOKEN}}" }],
+            "url": {
+              "raw": "{{BASE_URL}}/api/admin/referrals?q=&page=1&limit=20",
+              "host": ["{{BASE_URL}}"],
+              "path": ["api", "admin", "referrals"],
+              "query": [
+                { "key": "q", "value": "" },
+                { "key": "doctor_id", "value": "{{DOCTOR_ID}}", "disabled": true },
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "20" }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Doctor Panel",
+      "item": [
+        {
+          "name": "Refer Patient",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{DOCTOR_TOKEN}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Suresh Kumar\",\n  \"age\": 45,\n  \"sex\": \"male\",\n  \"phone\": \"9988776655\",\n  \"email\": \"suresh@example.com\",\n  \"address\": \"A-12, Vijay Nagar, Indore\",\n  \"notes\": \"Fasting required for sample\"\n}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/api/doctor/refer-patient",
+              "host": ["{{BASE_URL}}"],
+              "path": ["api", "doctor", "refer-patient"]
+            }
+          }
+        },
+        {
+          "name": "My Referrals",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{DOCTOR_TOKEN}}" }],
+            "url": {
+              "raw": "{{BASE_URL}}/api/doctor/my-referrals?q=&page=1&limit=20",
+              "host": ["{{BASE_URL}}"],
+              "path": ["api", "doctor", "my-referrals"],
+              "query": [
+                { "key": "q", "value": "" },
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "20" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "List My Reports",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{DOCTOR_TOKEN}}" }],
+            "url": {
+              "raw": "{{BASE_URL}}/api/doctor/reports?q=&status=completed&page=1&limit=20&sort_by=created_at&sort_dir=desc",
+              "host": ["{{BASE_URL}}"],
+              "path": ["api", "doctor", "reports"],
+              "query": [
+                { "key": "q", "value": "" },
+                { "key": "status", "value": "completed" },
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "20" },
+                { "key": "sort_by", "value": "created_at" },
+                { "key": "sort_dir", "value": "desc" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Report by ID (doctor)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{DOCTOR_TOKEN}}" }],
+            "url": {
+              "raw": "{{BASE_URL}}/api/doctor/reports/{{REPORT_ID}}",
+              "host": ["{{BASE_URL}}"],
+              "path": ["api", "doctor", "reports", "{{REPORT_ID}}"]
+            }
+          }
+        },
+        {
+          "name": "Download Report (doctor)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{DOCTOR_TOKEN}}" }],
+            "url": {
+              "raw": "{{BASE_URL}}/api/doctor/reports/{{REPORT_ID}}/download",
+              "host": ["{{BASE_URL}}"],
+              "path": ["api", "doctor", "reports", "{{REPORT_ID}}", "download"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
