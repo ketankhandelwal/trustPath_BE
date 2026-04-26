@@ -6,7 +6,7 @@ const REPORT_STATUSES = ['completed', 'incomplete', 'in_progress'];
 
 const createReportSchema = Joi.object({
   report_name: Joi.string().min(2).max(200).required(),
-  sample_date: Joi.date().iso().allow(null),
+  sample_date: Joi.string().isoDate().allow(null, ''),
   reg_no: Joi.string().max(80).allow('', null),
   lab_no: Joi.string().max(80).allow('', null),
   patient_name: Joi.string().min(2).max(160).required(),
@@ -23,7 +23,7 @@ console.log('[validators/report] createReportSchema ready');
 
 const updateReportSchema = Joi.object({
   report_name: Joi.string().min(2).max(200),
-  sample_date: Joi.date().iso().allow(null),
+  sample_date: Joi.string().isoDate().allow(null, ''),
   reg_no: Joi.string().max(80).allow('', null),
   lab_no: Joi.string().max(80).allow('', null),
   patient_name: Joi.string().min(2).max(160),

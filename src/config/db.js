@@ -1,8 +1,11 @@
 require('dotenv').config();
 console.log('[config/db] Bootstrapping pg Pool for raw SQL queries');
 
-const { Pool } = require('pg');
-console.log('[config/db] pg module loaded');
+const { Pool, types } = require('pg');
+
+
+// Return DATE columns as plain strings (e.g. "2026-04-22") instead of JS Date objects
+types.setTypeParser(1082, (val) => val);
 
 const pool = new Pool({
   host: process.env.DB_HOST,
