@@ -55,21 +55,16 @@ const listDoctor = async (req, res) => {
 const downloadAdmin = async (req, res) => {
   console.log('[report.controller.downloadAdmin] id:', req.params.id);
   const file = await reportService.getReportFileForDownload(req.params.id);
-  console.log('[report.controller.downloadAdmin] redirecting to S3 presigned url for:', file.originalName);
-  if (req.query.json === '1') {
-    return success(res, 200, 'Report download URL', file);
-  }
-  return res.redirect(302, file.url);
+  console.log('[report.controller.downloadAdmin] file:', file);
+  console.log('[report.controller.downloadAdmin] returning presigned url for:', file.originalName);
+  return success(res, 200, 'Report download URL', file);
 };
 
 const downloadDoctor = async (req, res) => {
   console.log('[report.controller.downloadDoctor] id:', req.params.id, 'doctor:', req.user.id);
   const file = await reportService.getReportFileForDownload(req.params.id, { doctorId: req.user.id });
-  console.log('[report.controller.downloadDoctor] redirecting to S3 presigned url for:', file.originalName);
-  if (req.query.json === '1') {
-    return success(res, 200, 'Report download URL', file);
-  }
-  return res.redirect(302, file.url);
+  console.log('[report.controller.downloadDoctor] returning presigned url for:', file.originalName);
+  return success(res, 200, 'Report download URL', file);
 };
 
 module.exports = {

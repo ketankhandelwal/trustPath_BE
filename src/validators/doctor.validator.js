@@ -22,6 +22,7 @@ const updateDoctorSchema = Joi.object({
   speciality: Joi.string().min(2).max(120),
   hospital: Joi.string().max(200).allow('', null),
   address: Joi.string().max(1000).allow('', null),
+  is_active: Joi.boolean(),
 }).min(1);
 console.log('[validators/doctor] updateDoctorSchema ready');
 
